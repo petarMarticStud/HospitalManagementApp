@@ -1,4 +1,4 @@
-Tabellen
+
 
 
 -- 1. Person
@@ -28,7 +28,7 @@ CREATE TABLE Patient (
     SVNR VARCHAR(4) NOT NULL,
     Geburtsdatum DATE NOT NULL,
     PRIMARY KEY (Patientennummer),
-    FOREIGN KEY (SVNR, Geburtsdatum) REFERENCES Person(SVNR)
+    FOREIGN KEY (SVNR) REFERENCES Person(SVNR)
 );
 
 -- 4. Bank
@@ -47,7 +47,7 @@ CREATE TABLE Angestellter (
     Bankleitzahl VARCHAR(10) NOT NULL,
     PRIMARY KEY (Angestelltennummer),
     FOREIGN KEY (SVNR) REFERENCES Person(SVNR),
-    FOREIGN KEY (Bankleitzahl) REFERENCES Bank(Bankleitzahl),
+    FOREIGN KEY (Bankleitzahl) REFERENCES Bank(Bankleitzahl)
 );
 
 -- 6. Arzt
@@ -61,10 +61,10 @@ CREATE TABLE Arzt (
 
 -- 7. Sachbearbeiter
 CREATE TABLE Sachbearbeiter (
-    SVNR VARCHAR(4) NOT NULL,
+    Angestelltennummer VARCHAR(4) NOT NULL,
     Einstellungsdatum DATE NOT NULL,
-    PRIMARY KEY (SVNR),
-    FOREIGN KEY (SVNR) REFERENCES Angestellter(SVNR)
+    PRIMARY KEY (Angestelltennummer),
+    FOREIGN KEY (Angestelltennummer) REFERENCES Angestellter(Angestelltennummer)
 );
 
 -- 8. Behandlungstyp
@@ -102,18 +102,18 @@ CREATE TABLE Vorgemerkt (
     Datum DATE NOT NULL,
     PRIMARY KEY (Patientennummer, BehandlungID, Uhrzeit, Arztnummer),
     FOREIGN KEY (Patientennummer) REFERENCES Patient(Patientennummer),
-    FOREIGN KEY (BehandlungID, Uhrzeit) REFERENCES Behandlung(BehandlungID, Uhrzeit),
+    FOREIGN KEY (BehandlungID, Uhrzeit) REFERENCES Behandlung(BehandlungstypID, Uhrzeit),
     FOREIGN KEY (Arztnummer) REFERENCES Arzt(Arztnummer)
 );
 
 -- 12. Koordiniert
 CREATE TABLE Koordiniert (
-    BehandlungID VARCHAR(8) NOT NULL,
-    SVNR VARCHAR(4) NOT NULL
-    Uhrzeit Date NOT NULL,
-    PRIMARY KEY (SVNR, BehandlungID, Uhrzeit),
-    FOREIGN KEY (SVNR) REFERENCES Sachbearbeiter(SVNR),
-    FOREIGN KEY (BehandlungID) REFERENCES Behandlung(BehandlungID)
+BehandlungID VARCHAR(8) NOT NULL,
+Angestelltennummer VARCHAR(4) NOT NULL,
+Uhrzeit VARCHAR(11) NOT NULL,
+PRIMARY KEY (Angestelltennummer, BehandlungID, Uhrzeit),
+FOREIGN KEY (Angestelltennummer) REFERENCES Sachbearbeiter(Angestelltennummer),
+FOREIGN KEY (BehandlungID, Uhrzeit) REFERENCES Behandlung(BehandlungstypID,Uhrzeit)
 );
 
 -- 13. Buchtyp

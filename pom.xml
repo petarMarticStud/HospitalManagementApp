@@ -2,25 +2,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Projektinformationen -->
     <groupId>com.spital</groupId>
     <artifactId>spital-management</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
 
     <name>Spital Management System</name>
-    <description>Webanwendung für Spitalverwaltung</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+
+        <!-- Dependency Versions -->
         <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
-        <jstl.version>1.2.5</jstl.version> <!-- Bewährte Version für JSTL SQL Tags -->
+        <jakarta.jsp.version>3.0.0</jakarta.jsp.version>
+        <jakarta.jstl.version>3.0.2</jakarta.jstl.version>
         <h2.version>2.2.224</h2.version>
-        <tomcat.version>10.1.11</tomcat.version>
+        <tomcat.version>10.1.18</tomcat.version>
     </properties>
 
     <dependencies>
@@ -36,32 +38,24 @@
         <dependency>
             <groupId>jakarta.servlet.jsp</groupId>
             <artifactId>jakarta.servlet.jsp-api</artifactId>
-            <version>2.3.6</version>
+            <version>${jakarta.jsp.version}</version>
             <scope>provided</scope>
         </dependency>
 
-        <!-- JSTL Core Tags -->
+        <!-- JSTL (Core + SQL + FMT) -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-            <version>${jstl.version}</version>
+            <version>${jakarta.jstl.version}</version>
         </dependency>
-
-        <!-- JSTL Implementation (enthält SQL Tags) -->
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>jakarta.servlet.jsp.jstl</artifactId>
-            <version>2.0.0</version>
+            <version>3.0.1</version>
+            <scope>runtime</scope>
         </dependency>
 
-        <!-- Alternativ: Apache JSTL Implementation für volle Kompatibilität -->
-        <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-impl</artifactId>
-            <version>${jstl.version}</version>
-        </dependency>
-
-        <!-- H2 Database (Embedded) -->
+        <!-- H2 Database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -73,7 +67,7 @@
     <build>
         <finalName>spital</finalName>
         <plugins>
-            <!-- Maven Compiler Plugin -->
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -84,39 +78,39 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven War Plugin -->
+            <!-- WAR Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <webResources>
-                        <resource>
-                            <directory>src/main/webapp</directory>
-                            <includes>
-                                <include>**/*.jsp</include>
-                                <include>**/*.html</include>
-                                <include>**/*.css</include>
-                                <include>**/*.js</include>
-                            </includes>
-                        </resource>
-                    </webResources>
+                    <packagingIncludes>WEB-INF/lib/*.jar</packagingIncludes>
                 </configuration>
             </plugin>
 
-            <!-- Tomcat7 Maven Plugin (für lokale Tests) -->
+            <!-- Embedded Tomcat (Cargo) -->
             <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.20</version>
                 <configuration>
-                    <path>/spital</path>
-                    <port>8080</port>
-                    <systemProperties>
-                        <h2.console.enabled>true</h2.console.enabled>
-                        <h2.console.port>8082</h2.console.port>
-                    </systemProperties>
+                    <container>
+                        <containerId>tomcat10x</containerId>
+                        <type>embedded</type>
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>${tomcat.version}</version>
+                        </artifactInstaller>
+                    </container>
+                    <configuration>
+                        <type>standalone</type>
+                        <properties>
+                            <cargo.servlet.port>8080</cargo.servlet.port>
+                            <cargo.jvmargs>-Dfile.encoding=UTF-8</cargo.jvmargs>
+                        </properties>
+                    </configuration>
                 </configuration>
             </plugin>
         </plugins>
